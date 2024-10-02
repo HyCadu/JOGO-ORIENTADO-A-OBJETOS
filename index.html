@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Revisão Spring MVC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+            color: #2d3748;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 15px;
+        }
+
+        .question {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #1a202c;
+        }
+
+        .option {
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #edf2f7;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .option:hover {
+            background-color: #cbd5e0;
+        }
+
+        .correct {
+            background-color: #48bb78 !important;
+            color: white;
+            border-color: #38a169;
+        }
+
+        .wrong {
+            background-color: #f56565 !important;
+            color: white;
+            border-color: #e53e3e;
+        }
+
+        .feedback {
+            font-size: 18px;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback-correct {
+            background-color: #48bb78;
+            color: white;
+        }
+
+        .feedback-wrong {
+            background-color: #f56565;
+            color: white;
+        }
+
+        .button-next,
+        .button-restart {
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #4299e1;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .counter {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <h1 class="text-3xl font-bold text-center mb-8 text-blue-600">Jogo de Revisão Orientada a Objetos</h1>
+        <div class="counter" id="counter">Respostas corretas: 0</div>
+        <div class="question" id="question">Carregando pergunta...</div>
+        <div id="options"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="button-next" id="nextBtn" onclick="nextQuestion()">Próxima Pergunta</button>
+        <button class="button-restart" id="restartBtn" onclick="restartGame()">Reiniciar Jogo</button>
+    </div>
+
+    <script>
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+
+        const questions = [
+        {
+            question: "Qual das opções a seguir NÃO é uma forma de construir uma String em Java?",
+            options: [
+                "a) Atribuindo diretamente a uma referência",
+                "b) Usando o operador new com uma string literal",
+                "c) Usando o operador new com um array de caracteres",
+                "d) Usando o método createString()"
+            ],
+            answer: "d) Usando o método createString()"
+        },
+        {
+            question: "Qual método retorna a quantidade de caracteres em uma string?",
+            options: [
+                "a) length()",
+                "b) size()",
+                "c) count()",
+                "d) getLength()"
+            ],
+            answer: "a) length()"
+        },
+        {
+            question: "Qual é a saída do código a seguir?\n\njava\nString s2 = Palavra;\nSystem.out.println(s2.toUpperCase());\n",
+            options: [
+                "a) palavra",
+                "b) PALAVRA",
+                "c) PalAvrA",
+                "d) PALavra"
+            ],
+            answer: "b) PALAVRA"
+        },
+        {
+            question: "Qual método transforma todos os caracteres de uma string em minúsculas?",
+            options: [
+                "a) toUpperCase()",
+                "b) toLowerCase()",
+                "c) toCharArray()",
+                "d) replaceAll()"
+            ],
+            answer: "b) toLowerCase()"
+        },
+        {
+            question: "O que o método split() retorna quando aplicado a uma string?",
+            options: [
+                "a) Uma string invertida",
+                "b) Um array de strings",
+                "c) Uma string convertida para maiúsculas",
+                "d) Um array de caracteres"
+            ],
+            answer: "b) Um array de strings"
+        },
+        {
+            question: "Qual é a função do método replaceAll() em Java?",
+            options: [
+                "a) Substituir a primeira ocorrência de um caractere",
+                "b) Substituir todas as ocorrências de uma substring",
+                "c) Converter uma string para maiúsculas",
+                "d) Dividir uma string em substrings"
+            ],
+            answer: "b) Substituir todas as ocorrências de uma substring"
+        },
+        {
+            question: "O que o seguinte código imprime?\n\n```java\nString texto = arara;\nString textoAlterado = texto.replace('a', 'o');\nSystem.out.println(textoAlterado);\n",
+            options: [
+                "a) arara",
+                "b) ororo",
+                "c) araro",
+                "d) orara"
+            ],
+            answer: "b) ororo"
+        },
+        {
+            question: "Qual método retorna o caractere em uma posição específica de uma string?",
+            options: [
+                "a) charAt()",
+                "b) getChar()",
+                "c) toCharArray()",
+                "d) substring()"
+            ],
+            answer: "a) charAt()"
+        },
+        {
+            question: "Qual é o resultado do código a seguir?\n\n```java\nString texto = palavra;\nString taux = texto.substring(0, 2);\nSystem.out.println(taux);",
+            options: [
+                "a) pa",
+                "b) al",
+                "c) lav",
+                "d) va"
+            ],
+            answer: "a) pa"
+        },
+        {
+            question: "Qual é a função do método toCharArray() em uma String?",
+            options: [
+                "a) Converter a string para letras maiúsculas",
+                "b) Retornar um array de caracteres",
+                "c) Substituir todos os caracteres de uma string",
+                "d) Dividir a string com base em um delimitador"
+            ],
+            answer: "b) Retornar um array de caracteres"
+        },
+        {
+            question: "O que o método indexOf() faz em uma string?",
+            options: [
+                "a) Retorna a posição de um caractere ou substring na string",
+                "b) Substitui caracteres por uma substring",
+                "c) Converte uma string em minúsculas",
+                "d) Retorna o comprimento de uma string"
+            ],
+            answer: "a) Retorna a posição de um caractere ou substring na string"
+        },
+        {
+            question: "Qual é a forma correta de comparar duas strings em Java?",
+            options: [
+                "a) ==",
+                "b) equals()",
+                "c) compare()",
+                "d) charAt()"
+            ],
+            answer: "b) equals()"
+        },{
+                question: "O que é uma classe em Java?",
+                options: [
+                    "A) Um tipo de dado primitivo",
+                    "B) Um modelo que define atributos e métodos",
+                    "C) Uma função específica",
+                    "D) Um identificador de variável"
+                ],
+                answer: "B) Um modelo que define atributos e métodos"
+            },
+            {
+                question: "Qual dos seguintes é um exemplo de método construtor?",
+                options: [
+                    "A) public void acelerar()",
+                    "B) public Carro(String cor)",
+                    "C) public static void iniciar()",
+                    "D) public void setCor(String cor)"
+                ],
+                answer: "B) public Carro(String cor)"
+            },
+            {
+                question: "O que é um objeto em Java?",
+                options: [
+                    "A) Uma função sem retorno",
+                    "B) Um ponteiro de memória",
+                    "C) Uma instância de uma classe",
+                    "D) Um tipo de dado estático"
+                ],
+                answer: "C) Uma instância de uma classe"
+            },
+            {
+                question: "Qual modificador de visibilidade permite acesso apenas dentro da própria classe?",
+                options: [
+                    "A) public",
+                    "B) protected",
+                    "C) private",
+                    "D) static"
+                ],
+                answer: "C) private"
+            },
+            {
+                question: "O que caracteriza a sobrecarga de métodos?",
+                options: [
+                    "A) Métodos que têm o mesmo nome mas assinaturas diferentes",
+                    "B) Métodos que retornam o mesmo tipo",
+                    "C) Métodos que alteram atributos privados",
+                    "D) Métodos com modificadores final"
+                ],
+                answer: "A) Métodos que têm o mesmo nome mas assinaturas diferentes"
+            },
+            {
+                question: "Quando um atributo é marcado como final, o que isso significa?",
+                options: [
+                    "A) Ele pode ser alterado em qualquer lugar",
+                    "B) Ele não pode ser modificado após ser inicializado",
+                    "C) Ele é visível apenas dentro do método onde foi declarado",
+                    "D) Ele pode ser modificado por subclasses"
+                ],
+                answer: "B) Ele não pode ser modificado após ser inicializado"
+            },
+            {
+                question: "Qual é o propósito da interface Serializable?",
+                options: [
+                    "A) Permitir a execução paralela de métodos",
+                    "B) Tornar um objeto passível de ser salvo em arquivos",
+                    "C) Garantir que um objeto não possa ser modificado",
+                    "D) Proteger o acesso a métodos privados"
+                ],
+                answer: "B) Tornar um objeto passível de ser salvo em arquivos"
+            },
+            {
+                question: "O que acontece quando um objeto é criado em Java?",
+                options: [
+                    "A) Uma cópia da classe é feita em disco",
+                    "B) Um espaço de memória é alocado para o objeto",
+                    "C) O valor do atributo static da classe é redefinido",
+                    "D) O método toString() é automaticamente chamado"
+                ],
+                answer: "B) Um espaço de memória é alocado para o objeto"
+            },
+            {
+                question: "O que ocorre na passagem de parâmetros por valor em Java?",
+                options: [
+                    "A) O método recebe uma referência ao valor original",
+                    "B) O método recebe uma cópia do valor do parâmetro",
+                    "C) O parâmetro é sempre passado por ponteiro",
+                    "D) O parâmetro é passado como uma string"
+                ],
+                answer: "B) O método recebe uma cópia do valor do parâmetro"
+            },
+            {
+                question: "Qual método da classe String retorna o número de caracteres na string?",
+                options: [
+                    "A) toUpperCase()",
+                    "B) substring()",
+                    "C) length()",
+                    "D) split()"
+                ],
+                answer: "C) length()"
+            }
+        ];
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startGame() {
+            shuffleArray(questions);
+            correctAnswers = 0;
+            updateCounter();
+            loadQuestion();
+        }
+
+        function checkAnswer(selectedOption) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const correctAnswer = currentQuestion.answer;
+            const feedback = document.getElementById("feedback");
+            const options = document.querySelectorAll(".option");
+
+            options.forEach(option => {
+                option.classList.remove("correct", "wrong");
+                option.style.pointerEvents = "none";
+            });
+
+            if (selectedOption === correctAnswer) {
+                feedback.textContent = "Correto!";
+                feedback.className = "feedback feedback-correct";
+                correctAnswers++;
+                document.querySelector(`[onclick="checkAnswer('${selectedOption}')"]`).classList.add("correct");
+            } else {
+                feedback.textContent = `Errado! A resposta certa é: ${correctAnswer}`;
+                feedback.className = "feedback feedback-wrong";
+                document.querySelector(`[onclick="checkAnswer('${selectedOption}')"]`).classList.add("wrong");
+            }
+
+            feedback.style.display = "block";
+            document.getElementById("nextBtn").style.display = "block";
+            updateCounter();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+                document.getElementById("feedback").style.display = "none";
+                document.getElementById("nextBtn").style.display = "none";
+            } else {
+                document.getElementById("question").textContent = "Você completou o jogo!";
+                document.getElementById("options").style.display = "none";
+                document.getElementById("feedback").textContent = `Parabéns! Você acertou ${correctAnswers} de ${questions.length}.`;
+                document.getElementById("feedback").className = "feedback feedback-correct";
+                document.getElementById("restartBtn").style.display = "block";
+            }
+        }
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            const questionEl = document.getElementById("question");
+            const optionsEl = document.getElementById("options");
+
+            questionEl.textContent = `Pergunta: ${currentQuestion.question}`;
+            optionsEl.innerHTML = currentQuestion.options.map(
+                (option, index) => `<div class="option" onclick="checkAnswer('${option.replace(/"/g, '&quot;')}')">${String.fromCharCode(97 + index)}) ${option}</div>`
+            ).join("");
+        }
+
+        function updateCounter() {
+            document.getElementById("counter").textContent = `Respostas corretas: ${correctAnswers}`;
+        }
+
+        function restartGame() {
+            currentQuestionIndex = 0;
+            document.getElementById("options").style.display = "block";
+            document.getElementById("restartBtn").style.display = "none";
+            document.getElementById("feedback").style.display = "none";
+            startGame();
+        }
+
+        startGame();
+    </script>
+</body>
+
+</html>
